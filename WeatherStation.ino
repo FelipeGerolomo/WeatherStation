@@ -27,13 +27,15 @@ void setup() {
   Serial.begin(9600);
   rtc.begin(DateTime(__DATE__, __TIME__));
   dht.begin();
+  pinMode(ANEMOMETER_PIN, INPUT);
+  digitalWrite(ANEMOMETER_PIN, HIGH);
   USB.begin(9600);
 }
 
 void loop() {
   data = convertFloatToString(getTemperature()) + ";" + convertFloatToString(getHumidity()) + ";" + convertFloatToString(getWindSpeed()) + ";" + convertFloatToString(0) + ";" + convertFloatToString(0) + ";" + getDate() + ";" + getHour() + ";\n";
   //writeData();
-  Serial.println(getWindSpeed());
+  Serial.println(data);
   //delay(1000);
 }
 
@@ -91,11 +93,9 @@ String getDate() {
 }
 
 float getWindSpeed() {
-  pinMode(ANEMOMETER_PIN, INPUT);
-  digitalWrite(ANEMOMETER_PIN, HIGH);
   WindVelocity();
   return WindSpeed();
-  delay(1000);
+  delay(2000);
 }
 
 void WindVelocity() {
