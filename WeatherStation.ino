@@ -6,7 +6,7 @@
 #define ANEMOMETER_RADIUS 147
 #define ANEMOMETER_PIN 2
 #define PERIOD 5000
-#define RAINFALL_PIN 3
+#define RAINGAUGE_PIN 3
 #define DHT_PIN A2
 #define DHT_TYPE DHT11
 #define USB_PIN_10 10
@@ -23,20 +23,26 @@ byte USB_Byte;               //used to store data coming from the USB stick
 int timeOut = 2000;
 String data;
 
+double rain = 0.0;
+bool bucketPosition = false;
+const double bucketAmount = 0.01610595;
+
 void setup() {
   Serial.begin(9600);
   rtc.begin(DateTime(__DATE__, __TIME__));
   dht.begin();
   pinMode(ANEMOMETER_PIN, INPUT);
   digitalWrite(ANEMOMETER_PIN, HIGH);
+  pinMode(RAINGAUGE_PIN, INPUT);
   USB.begin(9600);
 }
 
 void loop() {
-  data = convertFloatToString(getTemperature()) + ";" + convertFloatToString(getHumidity()) + ";" + convertFloatToString(getWindSpeed()) + ";" + convertFloatToString(0) + ";" + convertFloatToString(0) + ";" + getDate() + ";" + getHour() + ";\n";
+  data = convertFloatToString(getTemperature()) + ";" + convertFloatToString(getHumidity()) + ";" + convertFloatToString(getWindSpeed()) + ";" + convertFloatToString(0) + ";" + convertFloatToString(getRainGauge()) + ";" + getDate() + ";" + getHour() + ";\n";
   //writeData();
+  calcRainGauge();
   Serial.println(data);
-  //delay(1000);
+  delay(10000);
 }
 
 String convertFloatToString(float value)
@@ -127,6 +133,54 @@ float WindSpeed() {
 void addcount() {
   anemometerCounter++;
 }
+
+float getRainGauge() {
+  float rainGaugeValue = rain;
+  resetRainGauge();
+  return rainGaugeValue;
+}
+
+void calcRainGauge() {
+  if ((bucketPosition == false) && (digitalRead(RAINGAUGE_PIN) == HIGH)) {
+    bucketPosition = true;
+    rain += bucketAmount;
+  }
+
+  if ((bucketPosition == true) && (digitalRead(RAINGAUGE_PIN) == LOW)) {
+    bucketPosition = false;
+  }
+}
+
+void resetRainGauge() {
+  rain = 0.0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // --> USB CONTENT START ==============================================================================
 
