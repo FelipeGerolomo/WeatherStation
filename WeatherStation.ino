@@ -7,7 +7,7 @@
 #define ANEMOMETER_PIN 2
 #define PERIOD 5000
 #define RAINGAUGE_PIN 3
-#define DHT_PIN A2 
+#define DHT_PIN A2
 #define DHT_TYPE DHT11
 #define USB_PIN_10 10
 #define USB_PIN_11 11
@@ -65,7 +65,7 @@ String convertFloatToString(float value)
 
 void writeData() {
   if (!verificaSeExisteArquivo("WEATHER.CSV")) {
-    writeFile("WEATHER.CSV", "Temperatura;Umidade;Vel. Ventos;Dir. Vento;Pluviometro;Data;Hora\n");
+    writeFile("WEATHER.CSV", "Temperatura;Umidade;Vel. Vento;Dir. Vento;Pluviometro;Data;Hora\n");
   }
   appendFile("WEATHER.CSV", data);
 }
