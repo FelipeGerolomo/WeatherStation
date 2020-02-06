@@ -7,7 +7,7 @@
 #define ANEMOMETER_PIN 2
 #define PERIOD 5000
 #define RAINGAUGE_PIN 3
-#define DHT_PIN A2
+#define DHT_PIN A2 
 #define DHT_TYPE DHT11
 #define USB_PIN_10 10
 #define USB_PIN_11 11
@@ -22,6 +22,7 @@ byte computerByte;           //used to store data coming from the computer
 byte USB_Byte;               //used to store data coming from the USB stick
 int timeOut = 2000;
 String data;
+unsigned long lastMillis;
 
 double rain = 0.0;
 bool bucketPosition = false;
@@ -38,11 +39,19 @@ void setup() {
 }
 
 void loop() {
-  data = convertFloatToString(getTemperature()) + ";" + convertFloatToString(getHumidity()) + ";" + convertFloatToString(getWindSpeed()) + ";" + convertFloatToString(0) + ";" + convertFloatToString(getRainGauge()) + ";" + getDate() + ";" + getHour() + ";\n";
-  //writeData();
   calcRainGauge();
-  Serial.println(data);
-  delay(10000);
+  writeDataEvent();
+}
+
+void writeDataEvent() {
+  if (millis() - lastMillis >= 10 * 60 * 1000UL)
+  {
+    lastMillis = millis();  //get ready for the next iteration
+    data = convertFloatToString(getTemperature()) + ";" + convertFloatToString(getHumidity()) + ";" + convertFloatToString(getWindSpeed()) + ";" + convertFloatToString(0) + ";" + convertFloatToString(getRainGauge()) + ";" + getDate() + ";" + getHour() + ";\n";
+    writeData();
+    //Serial.println(data);
+  }
+
 }
 
 String convertFloatToString(float value)
@@ -55,11 +64,10 @@ String convertFloatToString(float value)
 }
 
 void writeData() {
-  if (verificaSeExisteArquivo("WEATHER.TXT")) {
-    appendFile("WEATHER.TXT", data);
-  } else {
-    writeFile("WEATHER.TXT", "Temperatura;Umidade;Vel. Ventos;Dir. Vento;Pluviometro;Data;Hora\n");
+  if (!verificaSeExisteArquivo("WEATHER.CSV")) {
+    writeFile("WEATHER.CSV", "Temperatura;Umidade;Vel. Ventos;Dir. Vento;Pluviometro;Data;Hora\n");
   }
+  appendFile("WEATHER.CSV", data);
 }
 
 bool verificaSeExisteArquivo(String fileName) {
@@ -142,6 +150,7 @@ float getRainGauge() {
 
 void calcRainGauge() {
   if ((bucketPosition == false) && (digitalRead(RAINGAUGE_PIN) == HIGH)) {
+    //Serial.println("GAUGE HIGH");
     bucketPosition = true;
     rain += bucketAmount;
   }
